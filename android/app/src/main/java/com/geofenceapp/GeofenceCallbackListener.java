@@ -1,4 +1,4 @@
-package com.geofenceapplication;
+package com.geofenceapp;
 
 public interface GeofenceCallbackListener {
     void onGeofenceTransition(String message);

@@ -1,6 +1,7 @@
 package com.geofenceapp
 import android.app.Application
-import com.geofenceapplication.GeofencePackage
+import com.geofenceapp.GeofencePackage
+import com.geofenceapp.ServicePackage
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -21,6 +22,7 @@ class MainApplication : Application(), ReactApplication {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
                add(GeofencePackage())
+               add(ServicePackage())
             }
 
         override fun getJSMainModuleName(): String = "index"

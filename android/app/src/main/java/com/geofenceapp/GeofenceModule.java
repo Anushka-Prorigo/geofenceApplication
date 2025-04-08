@@ -1,4 +1,4 @@
-package com.geofenceapplication;
+package com.geofenceapp;
 import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -35,15 +35,12 @@ public void addGeofence(double latitude, double longitude, float radius, Callbac
     this.geofenceCallback = callback;
 
     try {
-        // Call the GeofenceHandler method
         geofenceHandler.addGeofence(context, latitude, longitude, radius);
 
-        // Set the listener for geofence transitions
         geofenceBroadcastReceiver = new GeofenceBroadcastReceiver(getReactApplicationContext());
         geofenceBroadcastReceiver.setListener(this);
 
-        // Notify React Native that geofence is added
-        callback.invoke("Geofence added successfully!");
+        callback.invoke("geofencemodule","Geofence added successfully!");
     } catch (Exception e) {
         Log.e(TAG, "Error adding geofence: " + e.getMessage());
         callback.invoke("Error: " + e.getMessage());
@@ -59,7 +56,7 @@ public void onGeofenceTransition(String message) {
     } else {
         getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-            .emit("GeofenceTransition", message); // Send as an event if no callback
+            .emit("GeofenceTransition", message);
     }
 }
 
