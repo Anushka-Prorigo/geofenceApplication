@@ -1,5 +1,4 @@
-package com.geofenceapplication;
-
+package com.geofenceapp;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,22 +8,25 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
-import com.geofenceapplication.GeofenceCallbackListener;
+import com.geofenceapp.GeofenceCallbackListener;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
-
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     private ReactApplicationContext reactContext;
     private GeofenceCallbackListener listener;
+    public GeofenceBroadcastReceiver() {
+        // Default constructor
+    }
 
     public GeofenceBroadcastReceiver(ReactApplicationContext reactContext) {
-    this.reactContext = reactContext;
-}
-
+        this.reactContext = reactContext;
+         Log.e("GeofenceBroadcastReceiver", "onReceive called with intent: " + reactContext);
+        //  onReceive(reactContext, null);
+    }
 
     public void setListener(GeofenceCallbackListener listener) {
         this.listener = listener;
@@ -32,6 +34,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.e("GeofenceBroadcastReceiver", "onReceive called with intent: " + intent);
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         Log.e("GeofenceBroadcastReceiver", "onReceive called");
 
@@ -52,7 +55,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 message = "Dwelling in the geofence area.";
                 Log.d("GeofenceReceiver", message);
-
                 break;
 
             case Geofence.GEOFENCE_TRANSITION_EXIT:
@@ -64,48 +66,13 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                 return;
         }
 
-
         if (reactContext != null) {
-        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit("GeofenceTransition", message);
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("GeofenceTransition", message);
         }
-    
 
         if (listener != null) {
             listener.onGeofenceTransition(message);
-        }
-
-        sendNotification(context, message);
-    }
-
-    private void sendNotification(Context context, String message) {
-        String channelId = "GeofenceNotificationChannel";
-
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    channelId,
-                    "Geofence Notifications",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.setDescription("Notifications for geofence transitions.");
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-
-        Notification notification = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notification = new Notification.Builder(context, channelId)
-                    .setContentTitle("Geofence Transition")
-                    .setContentText(message)
-                    .setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .build();
-        }
-
-        if (notificationManager != null) {
-            notificationManager.notify(1, notification);
         }
     }
 }

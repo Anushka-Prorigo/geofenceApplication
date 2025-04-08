@@ -1,4 +1,4 @@
-package com.geofenceapplication;
+package com.geofenceapp;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
