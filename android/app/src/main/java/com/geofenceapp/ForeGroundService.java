@@ -28,7 +28,6 @@ public class ForeGroundService extends Service {
         GeofenceHandler geofenceHandler = new GeofenceHandler(this);
         geofenceHandler.addGeofence(this, latitude, longitude, 1000);
 
-        startForeground(1, getNotification());
         return START_STICKY;
     }
 

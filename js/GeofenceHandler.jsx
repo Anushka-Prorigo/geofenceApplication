@@ -16,7 +16,7 @@ const GeofenceHandler = () => {
                 100,
                 (response) => {
                     console.log('Geofence Callback:', response);
-                    Alert.alert('Geofence Setup', response);
+                    console.log('Geofence Setup', response);
                 }
             );
         };
@@ -28,7 +28,7 @@ const GeofenceHandler = () => {
             (message) => {
                 console.log('Received Transition:', message);
                 setTransitionMessage(message);
-                Alert.alert('Geofence Transition', message);
+                console.log('Geofence Transition', message);
             }
         );
 
