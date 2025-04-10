@@ -34,18 +34,17 @@
             </intent-filter>
         </activity>
 
-    <service
-    android:name=".ForeGroundService"
-    android:foregroundServiceType="location"
-    android:exported="true" />
-
         <receiver
-            android:name="com.geofenceapp.GeofenceBroadcastReceiver"
-            android:exported="true"
-            tools:ignore="Instantiatable">
+            android:name=".GeofenceBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.android.gms.location.ACTION_GEOFENCE_TRANSITION" />
+                <action android:name="com.geofenceapp.ACTION_GEOFENCE_EVENT" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".ForeGroundService"
+            android:foregroundServiceType="location"
+            android:exported="true" />
     </application>
 </manifest>

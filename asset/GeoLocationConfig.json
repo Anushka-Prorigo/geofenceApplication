@@ -1,0 +1,10 @@
+{
+    "targetLocation": {
+      "latitude": 12.971598,
+      "longitude": 77.594566,
+      "radiusInMeters": 100
+    },
+    "accuracyThreshold": 50,
+    "timeoutInSeconds": 10
+  }
+  

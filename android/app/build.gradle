@@ -113,6 +113,7 @@ dependencies {
     implementation 'com.facebook.react:react-native:+'
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
+   
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

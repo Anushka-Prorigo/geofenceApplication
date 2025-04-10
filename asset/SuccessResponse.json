@@ -1,0 +1,10 @@
+{
+    "status": "success",
+    "userLocation": {
+      "latitude": 12.9716,
+      "longitude": 77.5946,
+      "accuracy": 20
+    },
+    "withinGeoFence": true
+  }
+  
