@@ -7,19 +7,21 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
 
 public class GeofenceModule extends ReactContextBaseJavaModule implements GeofenceCallbackListener {
 
     private static final String TAG = "GeofenceModule";
+    private final GeofenceHandler geofenceHandler;
     private GeofenceBroadcastReceiver geofenceBroadcastReceiver;
-    private GeofenceHandler geofenceHandler;
     private Context context;
     private Callback geofenceCallback;
 
     public GeofenceModule(@NonNull ReactApplicationContext reactContext) {
         super(reactContext);
         this.context = reactContext;
-        geofenceHandler = new GeofenceHandler(context);
+        geofenceHandler = new GeofenceHandler(reactContext); // Pass ReactApplicationContext
         geofenceBroadcastReceiver = new GeofenceBroadcastReceiver(reactContext);
     }
 
@@ -30,17 +32,20 @@ public class GeofenceModule extends ReactContextBaseJavaModule implements Geofen
     }
 
     @ReactMethod
+    public void addGeofence(double latitude, double longitude, float radius) {
+        Log.d(TAG, "addGeofence called with latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
+        geofenceHandler.addGeofence(latitude, longitude, radius);
+    }
+
+    @ReactMethod
     public void addGeofence(double latitude, double longitude, float radius, Callback callback) {
-        Log.e(TAG, "addGeofence called with latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
-        this.geofenceCallback = callback;
+        Log.d(TAG, "addGeofence called with latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
         try {
-            geofenceHandler.addGeofence(context, latitude, longitude, radius);
-            geofenceBroadcastReceiver = new GeofenceBroadcastReceiver(getReactApplicationContext());
-            geofenceBroadcastReceiver.setListener(this);
+            geofenceHandler.addGeofence(latitude, longitude, radius);
             callback.invoke("Geofence added successfully!");
         } catch (Exception e) {
             Log.e(TAG, "Error adding geofence: " + e.getMessage());
-            callback.invoke("Error: " + e.getMessage());
+            callback.invoke("Error adding geofence: " + e.getMessage());
         }
     }
 
@@ -51,9 +56,11 @@ public class GeofenceModule extends ReactContextBaseJavaModule implements Geofen
         if (geofenceCallback != null) {
             geofenceCallback.invoke(message);
         } else {
-            getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit("GeofenceTransition", message);
+            WritableMap params = Arguments.createMap();
+            params.putString("message", "Geofence transition occurred");
+            ReactApplicationContext reactContext = getReactApplicationContext();
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("GeofenceTransition", params);
         }
     }
 

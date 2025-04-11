@@ -8,32 +8,35 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 
 public class GeofenceHandler {
-    private static final String TAG = "GeofenceHandler";
-    private GeofencingClient geofencingClient;
-    private PendingIntent geofencePendingIntent;
 
-    public GeofenceHandler(Context context) {
-        geofencingClient = LocationServices.getGeofencingClient(context);
+    private static final String TAG = "GeofenceHandler";
+    private final GeofencingClient geofencingClient;
+    private PendingIntent geofencePendingIntent;
+    private final ReactApplicationContext reactContext;
+
+    public GeofenceHandler(ReactApplicationContext reactContext) {
+        this.reactContext = reactContext;
+        this.geofencingClient = LocationServices.getGeofencingClient(reactContext);
     }
 
-    public void addGeofence(Context context, double latitude, double longitude, float radius) {
-        Log.d(TAG, "addGeofence called with latitude: " + latitude +
-                ", longitude: " + longitude + ", radius: " + radius);
+    public void addGeofence(double latitude, double longitude, float radius) {
+        if (ActivityCompat.checkSelfPermission(reactContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Missing ACCESS_FINE_LOCATION permission.");
+            return;
+        }
 
         Geofence geofence = new Geofence.Builder()
                 .setRequestId("MyGeofence")
                 .setCircularRegion(latitude, longitude, radius)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT |
-                        Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(10000)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build();
 
         GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
@@ -41,32 +44,26 @@ public class GeofenceHandler {
                 .addGeofence(geofence)
                 .build();
 
-        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "Missing ACCESS_FINE_LOCATION permission.");
-            return;
-        }
-
-        geofencingClient.addGeofences(geofencingRequest, getGeofencePendingIntent(context))
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Geofence added successfully"))
+        geofencingClient.addGeofences(geofencingRequest, getGeofencePendingIntent())
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Geofence added successfully."))
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to add geofence: " + e.getMessage()));
     }
 
-    public PendingIntent getGeofencePendingIntent(Context context) {
+    private PendingIntent getGeofencePendingIntent() {
+        Log.e(TAG, "getGeofencePendingIntent called.");
         if (geofencePendingIntent != null) {
             return geofencePendingIntent;
         }
-
-        Intent intent = new Intent(context.getApplicationContext(), GeofenceBroadcastReceiver.class);
-        Log.d(TAG, "Creating PendingIntent for GeofenceBroadcastReceiver."+intent);
-     PendingIntent geofencePendingIntent = PendingIntent.getBroadcast(
-    context.getApplicationContext(),
-    0,
-    intent,
-    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE // FLAG_MUTABLE is mandatory for Android 12+
-);
-
-
-        Log.d(TAG, "PendingIntent created successfully.");
+        if (geofencePendingIntent == null) {
+            Intent intent = new Intent(reactContext, GeofenceBroadcastReceiver.class);
+            intent.setAction("com.geofenceapp.ACTION_GEOFENCE_EVENT");
+            geofencePendingIntent = PendingIntent.getBroadcast(
+                    reactContext,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+            );
+        }
         return geofencePendingIntent;
     }
 }

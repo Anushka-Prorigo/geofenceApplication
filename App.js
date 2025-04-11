@@ -1,9 +1,11 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import useGeofenceHandler from './js/GeofenceHandler';
+import GeofenceHandler from './js/GeofenceHandler';
 
 const App = () => {
-    const transitionMessage = useGeofenceHandler();
+    const transitionMessage = GeofenceHandler();
+
+    console.log('Rendering App with transitionMessage:', transitionMessage);
 
     return (
         <View>

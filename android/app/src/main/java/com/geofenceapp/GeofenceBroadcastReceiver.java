@@ -38,7 +38,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive called."); // TAG is now defined and will work
+        Log.d(TAG, "onReceive called."); 
         if (intent == null) {
             Log.e(TAG, "Received null Intent. Exiting.");
             return;
@@ -62,22 +62,17 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 message = "Dwelling in the geofence area.";
                 Log.d(TAG, "Dwelling in the geofence area");
-                Log.d(TAG, message);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 message = "Exited the geofence area.";
                 Log.d(TAG, "Exited the geofence area");
-                Log.d(TAG, message);
                 break;
             default:
                 Log.e(TAG, "Unknown transition type: " + transitionType);
                 return;
         }
 
-        // Send to React Native
         sendEventToReactNative(context, "GeofenceTransition", message);
-
-        // Send notification
         sendNotification(context, message);
     }
 
