@@ -9,6 +9,9 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.bridge.ReactContext;
 
 public class GeofenceModule extends ReactContextBaseJavaModule implements GeofenceCallbackListener {
 
@@ -61,6 +64,24 @@ public class GeofenceModule extends ReactContextBaseJavaModule implements Geofen
             ReactApplicationContext reactContext = getReactApplicationContext();
             reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit("GeofenceTransition", params);
+        }
+    }
+
+    private void sendEventToReactNative(Context context, String eventName, String message) {
+        try {
+            ReactApplication reactApplication = (ReactApplication) context.getApplicationContext();
+            ReactInstanceManager reactInstanceManager = reactApplication.getReactNativeHost().getReactInstanceManager();
+            ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
+
+            if (reactContext != null) {
+                reactContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(eventName, message);
+            } else {
+                Log.w(TAG, "ReactContext is null. Could not send event to JS.");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to emit event: " + e.getMessage(), e);
         }
     }
 

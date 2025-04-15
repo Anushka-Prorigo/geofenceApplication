@@ -9,10 +9,11 @@ import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
 
+    // Define the ReactNativeHost as a property
     private val mReactNativeHost: ReactNativeHost = object : ReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> {
             return PackageList(this).packages.apply {
-                add(GeofencePackage()) // Add your custom package
+                add(GeofencePackage()) // Add your custom package if needed
             }
         }
 
@@ -25,6 +26,7 @@ class MainApplication : Application(), ReactApplication {
         }
     }
 
+    // Explicitly override the getReactNativeHost() method
     override fun getReactNativeHost(): ReactNativeHost {
         return mReactNativeHost
     }

@@ -1,62 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Alert, DeviceEventEmitter } from 'react-native';
-import { NativeModules } from 'react-native';
+import React, { useEffect } from 'react';
+import { DeviceEventEmitter, Alert, Text, View } from 'react-native';
 
-const { GeofenceModule } = NativeModules;
-
-const GeofenceHandler = () => {
-    const [transitionMessage, setTransitionMessage] = useState('');
-    const [isReady, setIsReady] = useState(false);
-
+const GeofenceHandler = ({ setTransitionMessage }) => {
     useEffect(() => {
-        const checkReactNativeContext = async () => {
-            try {
-                console.log('Checking if React Native context is ready...');
-                // Simulate a delay to ensure React Native context is ready
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                setIsReady(true);
-                console.log('React Native context is ready.');
-            } catch (error) {
-                console.error('Error checking React Native context:', error);
-            }
-        };
-
-        checkReactNativeContext();
-    }, []);
-
-    useEffect(() => {
-        if (!isReady) return;
-
-        const addGeofence = () => {
-            console.log('Adding Geofence...');
-            GeofenceModule.addGeofence(
-                18.565999,
-                73.775532,
-                100,
-                (response) => {
-                    console.log('Geofence Callback:', response);
-                    console.log('Geofence Setup', response);
-                }
-            );
-        };
-
-        addGeofence();
-
+        console.log('Registering GeofenceTransition listener...');
         const subscription = DeviceEventEmitter.addListener(
             'GeofenceTransition',
             (message) => {
                 console.log('Received Transition:', message);
-                setTransitionMessage(message);
-                Alert.alert('Geofence Transition', message);
+                if (message) {
+                    setTransitionMessage(message); // Pass the message to App.js
+                    Alert.alert('Geofence Transition', message);
+                } else {
+                    console.error('Received empty or undefined transition message.');
+                }
             }
         );
 
         return () => {
+            console.log('Removing GeofenceTransition listener...');
             subscription.remove();
         };
-    }, [isReady]);
+    }, []);
 
-    return transitionMessage;
+    return null; // No UI is rendered by GeofenceHandler
 };
 
 export default GeofenceHandler;

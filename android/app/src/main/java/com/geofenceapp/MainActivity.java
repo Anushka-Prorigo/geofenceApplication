@@ -1,17 +1,20 @@
 package com.geofenceapp;
-
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
+import com.geofenceapp.ForeGroundService;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -22,13 +25,14 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
 
+
 public class MainActivity extends ReactActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOCATION_PERMISSION = 100;
     private GeofencingClient geofencingClient;
-    private static final int MAX_RETRY_COUNT = 20; // Increase retry limit
-    private static final int RETRY_DELAY_MS = 5000; // Increase delay to 5 seconds
+    private static final int MAX_RETRY_COUNT = 20;
+    private static final int RETRY_DELAY_MS = 5000;
     private int retryCount = 0;
 
     @Override
@@ -49,6 +53,8 @@ public class MainActivity extends ReactActivity {
         }
 
         checkAndRequestPermissions();
+
+        // Start the foreground service
         startForegroundService();
     }
 
@@ -102,13 +108,28 @@ public class MainActivity extends ReactActivity {
         boolean fineLocationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean backgroundLocationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
+        Log.d(TAG, "Fine Location Granted: " + fineLocationGranted);
+        Log.d(TAG, "Background Location Granted: " + backgroundLocationGranted);
+
         if (!fineLocationGranted) {
+            Log.d(TAG, "Requesting Fine Location permission...");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
         } else if (!backgroundLocationGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Log.d(TAG, "Requesting Background Location permission...");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 101);
         } else {
-            Log.d("Permissions", "All required permissions granted. Proceeding...");
+            Log.d(TAG, "All required permissions granted. Proceeding...");
             startGeofencing();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                }, 1001);
+            }
         }
     }
 
@@ -135,9 +156,25 @@ public class MainActivity extends ReactActivity {
                 startGeofencing();
             } else {
                 Log.e("Permissions", "Background Location denied.");
-                Toast.makeText(this, "Background Location is required for geofencing.", Toast.LENGTH_LONG).show();
+                showPermissionRationaleDialog();
             }
         }
+    }
+
+    private void showPermissionRationaleDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Background Location Permission Required")
+                .setMessage("Background location access is required for geofencing to work properly. Please grant this permission in the app settings.")
+                .setPositiveButton("Open Settings", (dialog, which) -> {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    Toast.makeText(this, "Geofencing will not work without background location permission.", Toast.LENGTH_LONG).show();
+                })
+                .create()
+                .show();
     }
 
     private void startGeofencing() {
@@ -148,6 +185,21 @@ public class MainActivity extends ReactActivity {
                     .getCurrentReactContext();
             if (reactContext != null) {
                 Log.d(TAG, "ReactApplicationContext is ready. Adding geofence...");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (ActivityCompat.checkSelfPermission(reactContext, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Activity activity = reactContext.getCurrentActivity();
+                        if (activity == null) {
+                            Log.e(TAG, "Current activity is null. Cannot request permissions.");
+                            Toast.makeText(this, "Unable to request permissions. Please restart the app.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        ActivityCompat.requestPermissions(
+                                activity,
+                                new String[]{android.Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                1001 // Request code
+                        );
+                    }
+                }
                 new GeofenceHandler(reactContext).addGeofence(18.565999, 73.775532, 100.0f);
             } else {
                 Log.e(TAG, "ReactApplicationContext is null. Retrying...");
@@ -174,7 +226,6 @@ public class MainActivity extends ReactActivity {
 
         if (getReactNativeHost() != null && getReactNativeHost().hasInstance()) {
             Log.d(TAG, "React Native context is ready. Handling window focus change.");
-            // Proceed with operations that depend on the React Native context
         } else {
             Log.w(TAG, "React Native context is not ready. Skipping window focus change handling.");
         }

@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.facebook.react.bridge.ReactApplicationContext;
 
 import com.facebook.react.ReactApplication;
@@ -19,7 +21,7 @@ import com.google.android.gms.location.GeofencingEvent;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "GeofenceBroadcastReceiver"; // Define TAG here
+    private static final String TAG = "GeofenceBroadcastReceiver";
 
     private ReactApplicationContext reactContext;
     private GeofenceCallbackListener listener;
@@ -38,7 +40,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive called."); 
+        Log.d(TAG, "onReceive called.");
         if (intent == null) {
             Log.e(TAG, "Received null Intent. Exiting.");
             return;
@@ -57,23 +59,20 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 message = "Entered the geofence area.";
-                Log.d(TAG, "Entered the geofence area");
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 message = "Dwelling in the geofence area.";
-                Log.d(TAG, "Dwelling in the geofence area");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 message = "Exited the geofence area.";
-                Log.d(TAG, "Exited the geofence area");
                 break;
             default:
                 Log.e(TAG, "Unknown transition type: " + transitionType);
                 return;
         }
 
+        Log.d(TAG, "Geofence Transition: " + message);
         sendEventToReactNative(context, "GeofenceTransition", message);
-        sendNotification(context, message);
     }
 
     private void sendEventToReactNative(Context context, String eventName, String message) {
@@ -86,40 +85,43 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                 reactContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit(eventName, message);
+                Log.d(TAG, "Event emitted to React Native: " + eventName + " with message: " + message);
             } else {
-                Log.w("GeofenceReceiver", "ReactContext is null. Could not send event to JS.");
+                Log.w(TAG, "ReactContext is null. Could not send event to JS.");
             }
         } catch (Exception e) {
-            Log.e("GeofenceReceiver", "Failed to emit event: " + e.getMessage(), e);
+            Log.e(TAG, "Failed to emit event: " + e.getMessage(), e);
         }
     }
 
     private void sendNotification(Context context, String message) {
-        String channelId = "GeofenceNotificationChannel";
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId = "geofence_channel";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // For API 26 and above, create a notification channel
             NotificationChannel channel = new NotificationChannel(
                     channelId,
                     "Geofence Notifications",
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_DEFAULT
             );
-            channel.setDescription("Notifications for geofence transitions.");
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
+            notificationManager.createNotificationChannel(channel);
 
-        Notification notification = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notification = new Notification.Builder(context, channelId)
-                    .setContentTitle("Geofence Transition")
+            Notification notification = new Notification.Builder(context, channelId)
+                    .setContentTitle("Geofence Event")
                     .setContentText(message)
                     .setSmallIcon(android.R.drawable.ic_dialog_info)
                     .build();
-        }
 
-        if (notificationManager != null) {
+            notificationManager.notify(1, notification);
+        } else {
+            // For API levels below 26, use the older Notification.Builder
+            Notification notification = new Notification.Builder(context)
+                    .setContentTitle("Geofence Event")
+                    .setContentText(message)
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
+                    .build();
+
             notificationManager.notify(1, notification);
         }
     }

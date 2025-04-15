@@ -32,15 +32,21 @@ public class GeofenceHandler {
             return;
         }
 
+        if (ActivityCompat.checkSelfPermission(reactContext, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Missing ACCESS_BACKGROUND_LOCATION permission.");
+            return;
+        }
+
         Geofence geofence = new Geofence.Builder()
                 .setRequestId("MyGeofence")
                 .setCircularRegion(latitude, longitude, radius)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
+                .setLoiteringDelay(30000)
                 .build();
 
         GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER) // Trigger ENTER immediately
                 .addGeofence(geofence)
                 .build();
 
@@ -50,20 +56,13 @@ public class GeofenceHandler {
     }
 
     private PendingIntent getGeofencePendingIntent() {
-        Log.e(TAG, "getGeofencePendingIntent called.");
-        if (geofencePendingIntent != null) {
-            return geofencePendingIntent;
-        }
-        if (geofencePendingIntent == null) {
-            Intent intent = new Intent(reactContext, GeofenceBroadcastReceiver.class);
-            intent.setAction("com.geofenceapp.ACTION_GEOFENCE_EVENT");
-            geofencePendingIntent = PendingIntent.getBroadcast(
-                    reactContext,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
-            );
-        }
-        return geofencePendingIntent;
+        Intent intent = new Intent(reactContext, GeofenceBroadcastReceiver.class);
+        intent.setAction("com.geofenceapp.ACTION_GEOFENCE_EVENT");
+        return PendingIntent.getBroadcast(
+                reactContext,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE // Use FLAG_MUTABLE for Android 12+
+        );
     }
 }
