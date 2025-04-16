@@ -34,11 +34,11 @@ public class GeofenceModule extends ReactContextBaseJavaModule implements Geofen
         return "GeofenceModule";
     }
 
-    @ReactMethod
-    public void addGeofence(double latitude, double longitude, float radius) {
-        Log.d(TAG, "addGeofence called with latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
-        geofenceHandler.addGeofence(latitude, longitude, radius);
-    }
+    // @ReactMethod
+    // public void addGeofence(double latitude, double longitude, float radius) {
+    //     Log.d(TAG, "addGeofence called with latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
+    //     geofenceHandler.addGeofence(latitude, longitude, radius);
+    // }
 
     @ReactMethod
     public void addGeofence(double latitude, double longitude, float radius, Callback callback) {

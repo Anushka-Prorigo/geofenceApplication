@@ -42,11 +42,14 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         long currentTime = System.currentTimeMillis();
-    if (currentTime - lastTransitionTime < 5000) {
-        Log.d(TAG, "Ignoring duplicate transition.");
-        return;
-    }
-    lastTransitionTime = currentTime;
+
+        // Ignore duplicate events within 5 seconds
+        if (currentTime - lastTransitionTime < 5000) {
+            Log.d(TAG, "Ignoring duplicate transition.");
+            return;
+        }
+        lastTransitionTime = currentTime;
+
         Log.d(TAG, "onReceive called.");
         if (intent == null) {
             Log.e(TAG, "Received null Intent. Exiting.");

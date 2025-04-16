@@ -1,30 +1,26 @@
 import React, { useState } from 'react';
-import { Text, View ,StyleSheet} from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import GeofenceHandler from './js/GeofenceHandler';
 
 const App = () => {
     const [transitionMessage, setTransitionMessage] = useState('');
 
-    console.log('Rendering App with transitionMessage:', transitionMessage);
-
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Geofence Transition Message: {transitionMessage}</Text>
+            <Text style={styles.text}>Geofence Transition: {transitionMessage}</Text>
             <GeofenceHandler setTransitionMessage={setTransitionMessage} />
         </View>
     );
 };
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
     },
     text: {
-        fontSize: 18,
-        color: 'black',
+        fontSize: 16,
         textAlign: 'center',
+        margin: 10,
     },
 });
 
