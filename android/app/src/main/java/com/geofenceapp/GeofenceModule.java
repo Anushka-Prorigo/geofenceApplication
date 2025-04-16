@@ -24,7 +24,7 @@ public class GeofenceModule extends ReactContextBaseJavaModule implements Geofen
     public GeofenceModule(@NonNull ReactApplicationContext reactContext) {
         super(reactContext);
         this.context = reactContext;
-        geofenceHandler = new GeofenceHandler(reactContext); // Pass ReactApplicationContext
+        geofenceHandler = new GeofenceHandler(reactContext);
         geofenceBroadcastReceiver = new GeofenceBroadcastReceiver(reactContext);
     }
 

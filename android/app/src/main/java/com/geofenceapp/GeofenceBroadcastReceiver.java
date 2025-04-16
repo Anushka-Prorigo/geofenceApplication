@@ -21,6 +21,7 @@ import com.google.android.gms.location.GeofencingEvent;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
+    private long lastTransitionTime = 0;
     private static final String TAG = "GeofenceBroadcastReceiver";
 
     private ReactApplicationContext reactContext;
@@ -40,6 +41,12 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        long currentTime = System.currentTimeMillis();
+    if (currentTime - lastTransitionTime < 5000) {
+        Log.d(TAG, "Ignoring duplicate transition.");
+        return;
+    }
+    lastTransitionTime = currentTime;
         Log.d(TAG, "onReceive called.");
         if (intent == null) {
             Log.e(TAG, "Received null Intent. Exiting.");
@@ -99,7 +106,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         String channelId = "geofence_channel";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // For API 26 and above, create a notification channel
             NotificationChannel channel = new NotificationChannel(
                     channelId,
                     "Geofence Notifications",
