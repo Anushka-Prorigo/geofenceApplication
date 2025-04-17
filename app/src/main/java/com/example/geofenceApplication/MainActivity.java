@@ -1,5 +1,6 @@
 package com.example.geofenceApplication;
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,11 +17,13 @@ public class MainActivity extends AppCompatActivity {
     double latitude = 18.565999;
     double longitude = 73.775532;
     float radius = 1000;
+    private boolean isGeofencingActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startForegroundService();
         geofenceHandler = new GeofenceHandler(this);
         checkAndRequestPermissions();
     }
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            if (fineLocationGranted && backgroundLocationGranted) {
+            if (fineLocationGranted || backgroundLocationGranted) {
                 Log.d("Permissions", "Permissions granted, starting geofencing...");
                 startGeofencing();
             } else {
@@ -66,28 +69,40 @@ public class MainActivity extends AppCompatActivity {
     }
     private void startGeofencing() {
         Log.d("Geofencing", "Starting geofencing setup...");
-
         double latitude = 18.565999;
         double longitude = 73.775532;
         float radius = 1000;
 
         GeofenceHandler geofenceHandler = new GeofenceHandler(this);
-        geofenceHandler.addGeofence(this, latitude, longitude, radius);
+        geofenceHandler.addGeofence(this,"requestId", latitude, longitude, radius);
         Log.d("Geofencing", "Geofence added for location: " + latitude + ", " + longitude);
+    }
+
+    private void startForegroundService() {
+        Intent serviceIntent = new Intent(this, ForeGroundService.class);
+        serviceIntent.putExtra("latitude", latitude);
+        serviceIntent.putExtra("longitude", longitude);
+        startService(serviceIntent);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d("LifecycleDebug", "onPause triggered.");
+        Intent serviceIntent = new Intent(this, ForeGroundService.class);
+        startService(serviceIntent);
+        startForegroundService();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("LifecycleDebug", "Re-initializing geofences.");
+        Log.d("LifecycleDebug", "Re-initializing geofences if necessary.");
 
-        // Restart geofencing if necessary
-        startGeofencing();
+        if (!isGeofencingActive) {
+            startGeofencing();
+            isGeofencingActive = true;
+        }
     }
 
     @Override
@@ -96,10 +111,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d("LifecycleDebug", "onStop triggered.");
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d("LifecycleDebug", "onDestroy triggered.");
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("MainActivity", "Input Channel reconstructed as Activity restarted.");
     }
 }
