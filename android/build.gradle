@@ -5,18 +5,16 @@ buildscript {
         compileSdkVersion = 35
         targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
-        kotlinVersion = "1.8.10" // Ensure a valid Kotlin version
+        kotlinVersion = "1.8.10"
     }
+
     repositories {
-        google() // Required for Android Gradle Plugin
-        mavenCentral() // Required for React Native dependencies
-        maven { url 'https://jitpack.io' } // Optional, for additional dependencies
+        google()
+        mavenCentral()
     }
+
     dependencies {
-        classpath("com.android.tools.build:gradle:8.0.2") // Ensure a valid version
-        classpath("com.facebook.react:react-native-gradle-plugin") // React Native Gradle Plugin (no version specified)
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion") // Kotlin Gradle Plugin
+        classpath("com.android.tools.build:gradle:8.3.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
-
-apply plugin: "com.facebook.react.rootproject"

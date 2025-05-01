@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.util.Log;
-
 import androidx.core.app.ActivityCompat;
-
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
