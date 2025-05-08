@@ -1,4 +1,4 @@
 protocol GeofenceManagerProtocol {
-    func startGeofence(_ config: GeolocationConfig)
-    func stopGeofence()
+    func startMonitoringGeofence(lat: Double, lon: Double, radius: Double)
+    func stopMonitoringGeofence()
 }

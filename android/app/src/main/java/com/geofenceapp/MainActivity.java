@@ -25,7 +25,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
 
-
 public class MainActivity extends ReactActivity {
 
     private static final String TAG = "MainActivity";

@@ -7,9 +7,9 @@ const { GeofenceModule } = NativeModules;
 
 const GeofenceHandler = ({ setTransitionMessage }) => {
     const [geofence, setGeofence] = useState({
-        latitude: 18.565999, // Default geofence latitude
-        longitude: 73.775532, // Default geofence longitude
-        radius: 1000, // Default geofence radius in meters
+        latitude: 18.565999,
+        longitude: 73.775532,
+        radius: 1000,
     });
 
     useEffect(() => {
@@ -38,8 +38,8 @@ const GeofenceHandler = ({ setTransitionMessage }) => {
                 initialRegion={{
                     latitude: geofence.latitude,
                     longitude: geofence.longitude,
-                    latitudeDelta: 0.05, // Zoom level
-                    longitudeDelta: 0.05, // Zoom level
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
                 }}
             >
                 {/* Marker for the geofence center */}
@@ -58,9 +58,9 @@ const GeofenceHandler = ({ setTransitionMessage }) => {
                         latitude: geofence.latitude,
                         longitude: geofence.longitude,
                     }}
-                    radius={geofence.radius} // Radius in meters
-                    strokeColor="rgba(0, 150, 255, 0.8)" // Circle border color
-                    fillColor="rgba(0, 150, 255, 0.2)" // Circle fill color
+                    radius={geofence.radius}
+                    strokeColor="rgba(0, 150, 255, 0.8)"
+                    fillColor="rgba(0, 150, 255, 0.2)"
                 />
             </MapView>
         </View>

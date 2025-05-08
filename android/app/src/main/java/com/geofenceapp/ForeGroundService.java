@@ -55,18 +55,16 @@ public class ForeGroundService extends Service {
 
     private Notification getNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // For API level 26 and above
             return new Notification.Builder(this, "GeofenceServiceChannel")
                 .setContentTitle("Geofence Service")
                 .setContentText("Monitoring geofence transitions...")
-                .setSmallIcon(android.R.drawable.ic_menu_info_details) // Use system icon for testing
+                .setSmallIcon(android.R.drawable.ic_menu_info_details)
                 .build();
         } else {
-            // For API levels below 26
             return new Notification.Builder(this)
                 .setContentTitle("Geofence Service")
                 .setContentText("Monitoring geofence transitions...")
-                .setSmallIcon(android.R.drawable.ic_menu_info_details) // Use system icon for testing
+                .setSmallIcon(android.R.drawable.ic_menu_info_details)
                 .build();
         }
     }

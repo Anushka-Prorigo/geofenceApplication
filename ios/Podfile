@@ -1,23 +1,30 @@
-# Podfile
-platform :ios, '13.0' # Set the minimum iOS version
+platform :ios, '16.0'
+use_frameworks!
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-# This will auto-link all React Native dependencies
+
+
 target 'geofenceApp' do
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :hermes_enabled => false
   )
-
   post_install do |installer|
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
+    
+    # Force the iOS deployment target for all pods
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+      end
+    end
   end
 end

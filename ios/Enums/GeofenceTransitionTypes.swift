@@ -1,15 +1,21 @@
-enum TransitionState {
+import CoreLocation
+
+enum GeofenceTransitionType {
     case enter
-    case dwell
     case exit
-}
-func handleTransition(_ state: TransitionState) {
-    switch state {
-    case .enter:
-        print("Entered at")
-    case .dwell:
-        print("Dwelled for")
-    case .exit:
-        print("Exited because")
+    case dwell
+    case unknown
+
+    static func fromRegionState(_ state: CLRegionState) -> GeofenceTransitionType {
+        switch state {
+        case .inside:
+            return .enter
+        case .outside:
+            return .exit
+        case .unknown:
+            return .unknown
+        @unknown default:
+            return .unknown
+        }
     }
 }
