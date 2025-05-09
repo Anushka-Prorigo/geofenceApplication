@@ -5,8 +5,6 @@ import GeofenceHandler from './js/GeofenceHandler'; // Android Geofence Handler
 
 const App = () => {
   const [geofenceState, setGeofenceState] = useState('Waiting for geofence...');
-  const [geofenceError,setGeofenceError] = useState('');
-
   const GeofenceComponent = Platform.OS === 'ios' ? GeofenceManager : GeofenceHandler;
 
   return (

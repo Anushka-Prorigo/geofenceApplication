@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DeviceEventEmitter, Alert, StyleSheet, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
-import { NativeModules } from 'react-native';
-
-const { GeofenceModule } = NativeModules;
 
 const GeofenceHandler = ({ setTransitionMessage }) => {
     const [geofence, setGeofence] = useState({
