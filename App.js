@@ -1,38 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  NativeModules,
-  NativeEventEmitter,
-  Platform,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+import GeofenceManager from './js/GeofenceManager'; // iOS Geofence Manager
+import GeofenceHandler from './js/GeofenceHandler'; // Android Geofence Handler
 
-const { GeofenceModule } = NativeModules;
-const geofenceEmitter = new NativeEventEmitter(GeofenceModule);
-
- const App = () =>{
+const App = () => {
   const [geofenceState, setGeofenceState] = useState('Waiting for geofence...');
+  const [geofenceError,setGeofenceError] = useState('');
 
-  useEffect(() => {
-    GeofenceModule.startMonitoringGeofence(19.0176147, 72.8561644, 100);
-
-    const subscription = geofenceEmitter.addListener('onGeofenceTransition', (event) => {
-      console.log("🧐 Received Transition Event:", event);
-      setGeofenceState(`State: ${event.state}, Latitude: ${event.latitude}, Longitude: ${event.longitude}, Time: ${event.timestamp}`);     });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+  const GeofenceComponent = Platform.OS === 'ios' ? GeofenceManager : GeofenceHandler;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>iOS Geofencing</Text>
+      <GeofenceComponent setGeofenceState={setGeofenceState} />
+
+      <Text style={styles.title}>Geofencing ({Platform.OS.toUpperCase()})</Text>
       <Text style={styles.stateText}>{geofenceState}</Text>
     </View>
   );
- }
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -50,4 +36,5 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+
 export default App;

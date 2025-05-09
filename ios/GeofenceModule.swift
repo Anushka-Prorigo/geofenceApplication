@@ -31,25 +31,35 @@ import React
         "state": result.state
       ])
     }
+
     func onGeofenceError(_ error: GeofenceError) {
-      guard hasListeners else { return }
-      print(" Module received geofence error: \(error)")
-      
-      sendEvent(withName: "onGeofenceError", body: [
-        "error": error
-      ])
+        guard hasListeners else {
+            print("No listeners available for geofence error.")
+            return
+        }
+
+        print("Emitting Geofence Error Event to React Native:", error)
+
+        sendEvent(withName: "onGeofenceTransitionError", body: [
+            "error": [
+                "code": error.code,
+                "message": error.message
+            ]
+        ])
     }
+
     
     override static func requiresMainQueueSetup() -> Bool {
-      return true
+      return false
     }
     
     override func supportedEvents() -> [String]! {
-      return ["onGeofenceTransition"]
+      return ["onGeofenceTransition","onGeofenceTransitionError"]
     }
     
     override func startObserving() {
       hasListeners = true
+      print("GeofenceModule: Start observing events!")
     }
     
     override func stopObserving() {

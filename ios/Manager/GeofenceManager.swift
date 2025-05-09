@@ -20,8 +20,11 @@ class GeofenceManager: NSObject,CLLocationManagerDelegate,GeofenceManagerProtoco
     let authorizationStatus = CLLocationManager.authorizationStatus()
     guard authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse else {
             print(" Permission Denied: Location access is not granted")
-            return
+      let error = GeofenceError(code: GeofenceErrorCodes.errorLocationPermissionDenied, message: "Location permission is denied. Please enable it in settings.")
+          moduleCallback?.onGeofenceError(error)
+         return
         }
+   
     let center = CLLocationCoordinate2D(latitude: lat, longitude: lon)
     let region = CLCircularRegion(center: center, radius: radius, identifier: "Geofence")
     region.notifyOnEntry = true
@@ -51,8 +54,9 @@ class GeofenceManager: NSObject,CLLocationManagerDelegate,GeofenceManagerProtoco
       print("Manager received geofence result: \(result)")
 
       guard let callback = moduleCallback else {
-          print(" moduleCallback is nil Geofence result not forwarded.")
-          return
+          print(" moduleCallback is nil Geofence result from geofenceresult.")
+        let error = GeofenceError(code: GeofenceErrorCodes.errorUnknown, message: "Not getting Result of transition location")
+      return
       }
 
       print("Forwarding geofence result to module...")
