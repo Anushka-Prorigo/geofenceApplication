@@ -43,20 +43,20 @@ public class GeofenceModule extends ReactContextBaseJavaModule implements Geofen
 
     @ReactMethod
     public void addGeofence(GeofenceConfig configData) {
-        Log.d(TAG, "addGeofence called with latitude: " + configData.getLatitude() + ", longitude: " + configData.getLongitude() + ", radius: " + configData.getRadius());
-        geofenceHandler.addGeofence(configData.getLatitude(), configData.getLongitude(), configData.getRadius());
+        // Log.d(TAG, "addGeofence called with latitude: " + configData.getLatitude() + ", longitude: " + configData.getLongitude() + ", radius: " + configData.getRadius());
+        // geofenceHandler.addGeofence(configData.getLatitude(), configData.getLongitude(), configData.getRadius());
     }
 
     @ReactMethod
     public void addGeofence(GeofenceConfig configData, Callback callback) {
-        Log.d(TAG, "addGeofence called with latitude: " + configData.getLatitude() + ", longitude: " + configData.getLongitude() + ", radius: " + configData.getRadius());
-        try {
-            geofenceHandler.addGeofence(configData.getLatitude(), configData.getLongitude(), configData.getRadius());
-            callback.invoke("Geofence added successfully!");
-        } catch (Exception e) {
-            Log.e(TAG, "Error adding geofence: " + e.getMessage());
-            callback.invoke("Error adding geofence: " + e.getMessage());
-        }
+        // Log.d(TAG, "addGeofence called with latitude: " + configData.getLatitude() + ", longitude: " + configData.getLongitude() + ", radius: " + configData.getRadius());
+        // try {
+        //     geofenceHandler.addGeofence(configData.getLatitude(), configData.getLongitude(), configData.getRadius());
+        //     callback.invoke("Geofence added successfully!");
+        // } catch (Exception e) {
+        //     Log.e(TAG, "Error adding geofence: " + e.getMessage());
+        //     callback.invoke("Error adding geofence: " + e.getMessage());
+        // }
     }
 
     @Override
